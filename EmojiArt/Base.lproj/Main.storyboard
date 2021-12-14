@@ -96,7 +96,13 @@
                             <outlet property="delegate" destination="rCn-DP-RVi" id="sqN-90-ms7"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" id="qIP-gO-8VO"/>
+                    <navigationItem key="navigationItem" id="qIP-gO-8VO">
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="3Ql-gV-Kyt">
+                            <connections>
+                                <action selector="newEmojiArt:" destination="rCn-DP-RVi" id="NEp-DL-tiq"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="YtF-hL-MiI" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>

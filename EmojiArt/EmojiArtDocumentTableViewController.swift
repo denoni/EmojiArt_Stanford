@@ -29,4 +29,16 @@ class EmojiArtDocumentTableViewController: UITableViewController {
     return cell
   }
 
+  override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+    if editingStyle == .delete {
+      emojiArtDocuments.remove(at: indexPath.row)
+      tableView.deleteRows(at: [indexPath], with: .fade)
+    }
+  }
+
+  @IBAction func newEmojiArt(_ sender: UIBarButtonItem) {
+    emojiArtDocuments += ["Untitled".madeUnique(withRespectTo: emojiArtDocuments)]
+    tableView.reloadData()
+  }
+
 }
