@@ -36,6 +36,15 @@ class EmojiArtDocumentTableViewController: UITableViewController {
     }
   }
 
+  override func viewWillLayoutSubviews() {
+    super.viewWillLayoutSubviews()
+    // To enable the swiping to hide the primary view of the SplitView
+    // We set it here because the preferredDisplayMode gets reset every time the layout changes
+    if splitViewController?.preferredDisplayMode != .oneOverSecondary {
+      splitViewController?.preferredDisplayMode = .oneOverSecondary
+    }
+  }
+
   @IBAction func newEmojiArt(_ sender: UIBarButtonItem) {
     emojiArtDocuments += ["Untitled".madeUnique(withRespectTo: emojiArtDocuments)]
     tableView.reloadData()
