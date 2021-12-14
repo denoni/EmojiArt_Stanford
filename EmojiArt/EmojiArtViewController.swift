@@ -27,6 +27,7 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate {
 
   var imageFetcher: ImageFetcher!
 
+  // Drop and fetch the image
   func dropInteraction(_ interaction: UIDropInteraction, performDrop session: UIDropSession) {
 
     imageFetcher = ImageFetcher() { (url, image) in
