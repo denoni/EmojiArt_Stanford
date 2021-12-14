@@ -8,16 +8,44 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--View Controller-->
+        <!--Emoji Art View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="EmojiArt" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="EmojiArtViewController" customModule="EmojiArt" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC" customClass="EmojiArtViewController.swift" customModule="EmojiArt" customModuleProvider="target">
                         <rect key="frame" x="0.0" y="0.0" width="1180" height="820"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ISg-uh-9eT">
+                                <rect key="frame" x="0.0" y="24" width="1180" height="776"/>
+                                <subviews>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rdd-ez-tN0" customClass="EmojiArtView" customModule="EmojiArt" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="0.0" width="1180" height="776"/>
+                                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                    </view>
+                                </subviews>
+                                <color key="backgroundColor" systemColor="opaqueSeparatorColor"/>
+                                <constraints>
+                                    <constraint firstItem="rdd-ez-tN0" firstAttribute="leading" secondItem="ISg-uh-9eT" secondAttribute="leading" id="E99-FA-AGx"/>
+                                    <constraint firstAttribute="bottom" secondItem="rdd-ez-tN0" secondAttribute="bottom" id="MNh-ll-R4z"/>
+                                    <constraint firstAttribute="trailing" secondItem="rdd-ez-tN0" secondAttribute="trailing" id="SXJ-qW-Pk5"/>
+                                    <constraint firstItem="rdd-ez-tN0" firstAttribute="top" secondItem="ISg-uh-9eT" secondAttribute="top" id="ifg-Cb-wB9"/>
+                                </constraints>
+                            </view>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="ISg-uh-9eT" secondAttribute="bottom" id="6PT-5d-Upr"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="ISg-uh-9eT" secondAttribute="trailing" id="Twa-A3-eeV"/>
+                            <constraint firstItem="ISg-uh-9eT" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="ihZ-TY-CXp"/>
+                            <constraint firstItem="ISg-uh-9eT" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="qpn-g2-kzp"/>
+                        </constraints>
                     </view>
+                    <connections>
+                        <outlet property="dropZone" destination="ISg-uh-9eT" id="5V2-4f-9yV"/>
+                        <outlet property="emojiArtView" destination="rdd-ez-tN0" id="7NR-Ii-Gm1"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
@@ -25,6 +53,9 @@
         </scene>
     </scenes>
     <resources>
+        <systemColor name="opaqueSeparatorColor">
+            <color red="0.77647058823529413" green="0.77647058823529413" blue="0.78431372549019607" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
