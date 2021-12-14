@@ -19,18 +19,14 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ISg-uh-9eT">
                                 <rect key="frame" x="0.0" y="0.0" width="704" height="740"/>
                                 <subviews>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rdd-ez-tN0" customClass="EmojiArtView" customModule="EmojiArt" customModuleProvider="target">
+                                    <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="CAR-Sc-e8f">
                                         <rect key="frame" x="0.0" y="0.0" width="704" height="740"/>
-                                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                    </view>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <viewLayoutGuide key="contentLayoutGuide" id="pdQ-b2-rZP"/>
+                                        <viewLayoutGuide key="frameLayoutGuide" id="Nro-iF-V9w"/>
+                                    </scrollView>
                                 </subviews>
                                 <color key="backgroundColor" systemColor="opaqueSeparatorColor"/>
-                                <constraints>
-                                    <constraint firstItem="rdd-ez-tN0" firstAttribute="leading" secondItem="ISg-uh-9eT" secondAttribute="leading" id="E99-FA-AGx"/>
-                                    <constraint firstAttribute="bottom" secondItem="rdd-ez-tN0" secondAttribute="bottom" id="MNh-ll-R4z"/>
-                                    <constraint firstAttribute="trailing" secondItem="rdd-ez-tN0" secondAttribute="trailing" id="SXJ-qW-Pk5"/>
-                                    <constraint firstItem="rdd-ez-tN0" firstAttribute="top" secondItem="ISg-uh-9eT" secondAttribute="top" id="ifg-Cb-wB9"/>
-                                </constraints>
                             </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
@@ -44,7 +40,7 @@
                     </view>
                     <connections>
                         <outlet property="dropZone" destination="ISg-uh-9eT" id="5V2-4f-9yV"/>
-                        <outlet property="emojiArtView" destination="rdd-ez-tN0" id="7NR-Ii-Gm1"/>
+                        <outlet property="scrollView" destination="CAR-Sc-e8f" id="45p-ct-vSN"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
