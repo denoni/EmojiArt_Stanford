@@ -13,14 +13,14 @@
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="EmojiArtViewController" customModule="EmojiArt" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC" customClass="EmojiArtViewController.swift" customModule="EmojiArt" customModuleProvider="target">
-                        <rect key="frame" x="0.0" y="0.0" width="704" height="740"/>
+                        <rect key="frame" x="0.0" y="0.0" width="859.5" height="820"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ISg-uh-9eT">
-                                <rect key="frame" x="0.0" y="0.0" width="704" height="740"/>
+                                <rect key="frame" x="0.0" y="74" width="859.5" height="726"/>
                                 <subviews>
                                     <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="CAR-Sc-e8f">
-                                        <rect key="frame" x="0.0" y="0.0" width="704" height="740"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="860" height="726"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <viewLayoutGuide key="contentLayoutGuide" id="pdQ-b2-rZP"/>
                                         <viewLayoutGuide key="frameLayoutGuide" id="Nro-iF-V9w"/>
@@ -52,8 +52,8 @@
             <objects>
                 <splitViewController allowDoubleColumnStyle="YES" id="fYL-Fx-H0f" sceneMemberID="viewController">
                     <connections>
-                        <segue destination="BYZ-38-t0r" kind="showDetail" id="Nmd-wb-VHk"/>
                         <segue destination="ago-p1-l1l" kind="relationship" relationship="masterViewController" id="98j-Cj-xnw"/>
+                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="detailViewController" id="b0F-0e-ccI"/>
                     </connections>
                 </splitViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="XcS-qH-LRk" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
