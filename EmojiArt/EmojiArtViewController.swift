@@ -29,6 +29,7 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
       scrollView.addSubview(emojiArtView)
     }
   }
+
   @IBOutlet weak var emojiCollectionView: UICollectionView! {
     didSet {
       emojiCollectionView.dataSource = self
@@ -41,7 +42,6 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
   @IBAction func addEmoji() {
     addingEmoji = true
     emojiCollectionView.reloadSections(IndexSet(integer: 0))
-
   }
 
   // Change the scroll view size to the content size if user scrolls
@@ -100,9 +100,9 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
 
   func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
     switch section {
-      case 0: return 1
-      case 1: return emojis.count
-      default: return 0
+    case 0: return 1
+    case 1: return emojis.count
+    default: return 0
     }
   }
 
@@ -117,6 +117,15 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
       return cell
     } else if addingEmoji {
       let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EmojiInputCell", for: indexPath)
+      if let inputCell = cell as? TextFieldCollectionViewCell {
+        inputCell.resignationHandler = { [weak self, unowned inputCell] in
+          if let text = inputCell.textField.text {
+            self?.emojis = ((text.map{ String($0)}) + self!.emojis).uniquified
+          }
+          self?.addingEmoji = false
+          self?.emojiCollectionView.reloadData()
+        }
+      }
       return cell
     } else {
       let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "AddEmojiButtonCell", for: indexPath)
@@ -124,10 +133,11 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
     }
   }
 
-  func collectionView(_ collectionView: UICollectionView, layout collectionViewCell: UICollectionViewCell, forItemAt indexPath: IndexPath) -> CGSize {
+  func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
     if addingEmoji && indexPath.section == 0 {
       return CGSize(width: 300, height: 80)
-    } else {
+    }
+    else {
       return CGSize(width: 80, height: 80)
     }
   }

@@ -15,6 +15,12 @@ class TextFieldCollectionViewCell: UICollectionViewCell, UITextFieldDelegate {
     }
   }
 
+  var resignationHandler: (() -> Void)?
+
+  func textFieldDidEndEditing(_ textField: UITextField) {
+    resignationHandler?()
+  }
+
   func textFieldShouldReturn(_ textField: UITextField) -> Bool {
     textField.resignFirstResponder()
     return true
