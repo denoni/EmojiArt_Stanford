@@ -9,7 +9,8 @@ import UIKit
 
 class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScrollViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDragDelegate, UICollectionViewDropDelegate {
 
-    var emojiArtView = EmojiArtView()
+  var emojiArtView = EmojiArtView()
+  private var addingEmoji = false
 
   @IBOutlet weak var scrollViewHeight: NSLayoutConstraint!
   @IBOutlet weak var scrollViewWidth: NSLayoutConstraint!
@@ -35,6 +36,12 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
       emojiCollectionView.dragDelegate = self
       emojiCollectionView.dropDelegate = self
     }
+  }
+
+  @IBAction func addEmoji() {
+    addingEmoji = true
+    emojiCollectionView.reloadSections(IndexSet(integer: 0))
+
   }
 
   // Change the scroll view size to the content size if user scrolls
@@ -87,19 +94,50 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
     return UIFontMetrics(forTextStyle: .body).scaledFont(for: .preferredFont(forTextStyle: .body).withSize(50))
   }
 
+  func numberOfSections(in collectionView: UICollectionView) -> Int {
+    return 2
+  }
+
   func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-    return emojis.count
+    switch section {
+      case 0: return 1
+      case 1: return emojis.count
+      default: return 0
+    }
   }
 
   func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EmojiCell", for: indexPath)
-    if let emojiCell = cell as? EmojiCollectionViewCell {
+    if indexPath.section == 1 {
+      let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EmojiCell", for: indexPath)
+      if let emojiCell = cell as? EmojiCollectionViewCell {
 
-      let text = NSAttributedString(string: emojis[indexPath.item], attributes: [.font: font])
-      emojiCell.label.attributedText = text
+        let text = NSAttributedString(string: emojis[indexPath.item], attributes: [.font: font])
+        emojiCell.label.attributedText = text
+      }
+      return cell
+    } else if addingEmoji {
+      let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EmojiInputCell", for: indexPath)
+      return cell
+    } else {
+      let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "AddEmojiButtonCell", for: indexPath)
+      return cell
     }
-    return cell
   }
+
+  func collectionView(_ collectionView: UICollectionView, layout collectionViewCell: UICollectionViewCell, forItemAt indexPath: IndexPath) -> CGSize {
+    if addingEmoji && indexPath.section == 0 {
+      return CGSize(width: 300, height: 80)
+    } else {
+      return CGSize(width: 80, height: 80)
+    }
+  }
+
+  func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+    if let inputCell = cell as? TextFieldCollectionViewCell {
+      inputCell.textField.becomeFirstResponder()
+    }
+  }
+
 
   func collectionView(_ collectionView: UICollectionView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
     // Just to check check if the item is local(that means that the item being dropped
@@ -113,7 +151,7 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
   }
 
   private func dragItems(at indexPath: IndexPath) -> [UIDragItem] {
-    if let attributedString = (emojiCollectionView.cellForItem(at: indexPath) as? EmojiCollectionViewCell)?.label.attributedText {
+    if !addingEmoji, let attributedString = (emojiCollectionView.cellForItem(at: indexPath) as? EmojiCollectionViewCell)?.label.attributedText {
       let dragItem = UIDragItem(itemProvider: NSItemProvider(object: attributedString))
       dragItem.localObject = attributedString
       return [dragItem]
@@ -127,9 +165,13 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
   }
 
   func collectionView(_ collectionView: UICollectionView, dropSessionDidUpdate session: UIDropSession, withDestinationIndexPath destinationIndexPath: IndexPath?) -> UICollectionViewDropProposal {
-    // Checks if the drop is local(that means that the item being dropped was dragged from the emoji's CollectionView)
-    let isSelf = ((session.localDragSession?.localContext as? UICollectionView) == collectionView)
-    return UICollectionViewDropProposal(operation: isSelf ? .move : .copy, intent: .insertAtDestinationIndexPath)
+    if let indexPath = destinationIndexPath, indexPath.section == 1 {
+      // Checks if the drop is local(that means that the item being dropped was dragged from the emoji's CollectionView)
+      let isSelf = ((session.localDragSession?.localContext as? UICollectionView) == collectionView)
+      return UICollectionViewDropProposal(operation: isSelf ? .move : .copy, intent: .insertAtDestinationIndexPath)
+    } else {
+      return UICollectionViewDropProposal(operation: .cancel)
+    }
   }
 
   func collectionView(_ collectionView: UICollectionView, performDropWith coordinator: UICollectionViewDropCoordinator) {

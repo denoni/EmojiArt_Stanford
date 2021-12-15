@@ -18,6 +18,7 @@
 		C09CEFC52768FF2D007C0339 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C09CEFC42768FF2D007C0339 /* Assets.xcassets */; };
 		C09CEFC82768FF2E007C0339 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C09CEFC62768FF2E007C0339 /* LaunchScreen.storyboard */; };
 		C09CEFD0276901ED007C0339 /* EmojiArtView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C09CEFCF276901ED007C0339 /* EmojiArtView.swift */; };
+		C0AF88A5276A0F06008C8FB9 /* TextFieldCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0AF88A4276A0F06008C8FB9 /* TextFieldCollectionViewCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +35,7 @@
 		C09CEFC72768FF2E007C0339 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C09CEFC92768FF2E007C0339 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C09CEFCF276901ED007C0339 /* EmojiArtView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiArtView.swift; sourceTree = "<group>"; };
+		C0AF88A4276A0F06008C8FB9 /* TextFieldCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldCollectionViewCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +73,7 @@
 				C09CEFBF2768FE44007C0339 /* EmojiArtViewController.swift */,
 				C09CEFCF276901ED007C0339 /* EmojiArtView.swift */,
 				C09AA0BC276995CB00188F42 /* EmojiArtView+Gestures.swift */,
+				C0AF88A4276A0F06008C8FB9 /* TextFieldCollectionViewCell.swift */,
 				C09ADC02276927A700A50898 /* EmojiArtDocumentTableViewController.swift */,
 				C09AA0BA27697FDF00188F42 /* EmojiCollectionViewCell.swift */,
 				C09ADC00276908FE00A50898 /* Utilities.swift */,
@@ -153,6 +156,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C0AF88A5276A0F06008C8FB9 /* TextFieldCollectionViewCell.swift in Sources */,
 				C09AA0BB27697FDF00188F42 /* EmojiCollectionViewCell.swift in Sources */,
 				C09AA0BD276995CB00188F42 /* EmojiArtView+Gestures.swift in Sources */,
 				C09CEFC02768FE44007C0339 /* EmojiArtViewController.swift in Sources */,
