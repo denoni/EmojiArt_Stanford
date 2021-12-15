@@ -121,8 +121,8 @@
                                     <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="CAR-Sc-e8f">
                                         <rect key="frame" x="8" y="88" width="1164" height="630"/>
                                         <constraints>
-                                            <constraint firstAttribute="height" constant="630" id="KCc-7b-edY"/>
-                                            <constraint firstAttribute="width" constant="1164" id="iiV-V0-SIb"/>
+                                            <constraint firstAttribute="height" priority="250" constant="630" id="KCc-7b-edY"/>
+                                            <constraint firstAttribute="width" priority="250" constant="1164" id="iiV-V0-SIb"/>
                                         </constraints>
                                         <viewLayoutGuide key="contentLayoutGuide" id="pdQ-b2-rZP"/>
                                         <viewLayoutGuide key="frameLayoutGuide" id="Nro-iF-V9w"/>
