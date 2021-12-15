@@ -9,6 +9,31 @@ import UIKit
 
 class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScrollViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDragDelegate, UICollectionViewDropDelegate {
 
+  var emojiArt: EmojiArtModel? {
+    get {
+      if let url = emojiArtBackgroundImage.url {
+        let emojis = emojiArtView.subviews.compactMap { $0 as? UILabel }.compactMap { EmojiArtModel.EmojiInfo(label: $0) }
+        return EmojiArtModel(url: url, emojis: emojis)
+      }
+      return nil
+    }
+    set {
+      emojiArtBackgroundImage = (nil, nil)
+      emojiArtView.subviews.compactMap { $0 as? UILabel }.forEach { $0.removeFromSuperview() }
+      if let url = newValue?.url {
+        imageFetcher = ImageFetcher(fetch: url, handler: { (url, image) in
+          DispatchQueue.main.async {
+            self.emojiArtBackgroundImage = (url, image)
+            newValue?.emojis.forEach {
+              let attributedText = $0.text.attributedString(withTextStyle: .body, ofSize: CGFloat($0.size))
+              self.emojiArtView.addLabel(with: attributedText, centeredAt: CGPoint(x: $0.x, y: $0.y))
+            }
+          }
+        })
+      }
+    }
+  }
+
   var emojiArtView = EmojiArtView()
   private var addingEmoji = false
 
@@ -44,6 +69,24 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
     emojiCollectionView.reloadSections(IndexSet(integer: 0))
   }
 
+  @IBAction func save(_ sender: UIBarButtonItem) {
+    if let json = emojiArt?.json {
+      if let url = try? FileManager.default.url(for: .documentDirectory,
+                                                   in: .userDomainMask,
+                                                   appropriateFor: nil,
+                                                   create: true).appendingPathComponent("Untitled.json") {
+        do {
+          try json.write(to: url)
+          print("Saved successfully")
+        } catch let error {
+          print("Couldn't save - \(error)")
+        }
+      }
+          
+    }
+  }
+
+
   // Change the scroll view size to the content size if user scrolls
   func scrollViewDidZoom(_ scrollView: UIScrollView) {
     scrollViewHeight.constant = scrollView.contentSize.height
@@ -71,7 +114,7 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
 
     imageFetcher = ImageFetcher() { (url, image) in
       DispatchQueue.main.async {
-        self.emojiArtBackgroundImage = image
+        self.emojiArtBackgroundImage = (url, image)
       }
     }
 
@@ -216,14 +259,17 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
     }
   }
 
-  var emojiArtBackgroundImage: UIImage? {
+  private var emojiArtBackgroundImageURL: URL?
+
+  var emojiArtBackgroundImage: (url: URL?, image: UIImage?) {
     get {
-      return emojiArtView.backgroundImage
+      return (emojiArtBackgroundImageURL, emojiArtView.backgroundImage)
     }
     set {
+      emojiArtBackgroundImageURL = newValue.url
       scrollView?.zoomScale = 1
-      emojiArtView.backgroundImage = newValue
-      let size = newValue?.size ?? CGSize.zero
+      emojiArtView.backgroundImage = newValue.image
+      let size = newValue.image?.size ?? CGSize.zero
       emojiArtView.frame = CGRect(origin: CGPoint.zero, size: size)
       scrollView?.contentSize = size
 
@@ -239,3 +285,15 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
 
 }
 
+extension EmojiArtModel.EmojiInfo {
+  init?(label: UILabel) {
+    if let attributedText = label.attributedText, let font = attributedText.font {
+      x = Int(label.center.x)
+      y = Int(label.center.y)
+      text = attributedText.string
+      size = Int(font.pointSize)
+    } else {
+      return nil
+    }
+  }
+}
