@@ -79,7 +79,9 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
 
   @IBAction func close(_ sender: UIBarButtonItem) {
     save()
-    document?.close()
+    dismiss(animated: true) {
+      self.document?.close()
+    }
   }
 
   override func viewDidLoad() {
