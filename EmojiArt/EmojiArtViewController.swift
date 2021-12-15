@@ -9,7 +9,7 @@ import UIKit
 
 class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScrollViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDragDelegate, UICollectionViewDropDelegate {
 
-  var emojiArt: EmojiArtModel? {
+  var emojiArtModel: EmojiArtModel? {
     get {
       if let url = emojiArtBackgroundImage.url {
         let emojis = emojiArtView.subviews.compactMap { $0 as? UILabel }.compactMap { EmojiArtModel.EmojiInfo(label: $0) }
@@ -35,6 +35,7 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
   }
 
   var emojiArtView = EmojiArtView()
+  var document: EmojiArtDocument?
   private var addingEmoji = false
 
   @IBOutlet weak var scrollViewHeight: NSLayoutConstraint!
@@ -69,32 +70,36 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
     emojiCollectionView.reloadSections(IndexSet(integer: 0))
   }
 
-  @IBAction func save(_ sender: UIBarButtonItem) {
-    if let json = emojiArt?.json {
-      if let url = try? FileManager.default.url(for: .documentDirectory,
-                                                   in: .userDomainMask,
-                                                   appropriateFor: nil,
-                                                   create: true).appendingPathComponent("Untitled.json") {
-        do {
-          try json.write(to: url)
-          print("Saved successfully")
-        } catch let error {
-          print("Couldn't save - \(error)")
-        }
-      }
-          
+  @IBAction func save(_ sender: UIBarButtonItem? = nil) {
+    document?.emojiArtModel = emojiArtModel
+    if document?.emojiArtModel != nil {
+      document?.updateChangeCount(.done)
+    }
+  }
+
+  @IBAction func close(_ sender: UIBarButtonItem) {
+    save()
+    document?.close()
+  }
+
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    if let url = try? FileManager.default.url(for: .documentDirectory,
+                                                 in: .userDomainMask,
+                                                 appropriateFor: nil,
+                                                 create: true).appendingPathComponent("Untitled.json") {
+      document = EmojiArtDocument(fileURL: url)
     }
   }
 
   override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
-    if let url = try? FileManager.default.url(for: .documentDirectory,
-                                                 in: .userDomainMask,
-                                                 appropriateFor: nil,
-                                                 create: true).appendingPathComponent("Untitled.json") {
-      if let jsonData = try? Data(contentsOf: url) {
-        emojiArt = EmojiArtModel(json: jsonData)
+    document?.open { success in
+      if success {
+        self.title = self.document?.localizedName
+        self.emojiArtModel = self.document?.emojiArtModel
       }
+
     }
   }
 
