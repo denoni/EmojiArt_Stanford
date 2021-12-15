@@ -86,6 +86,17 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
     }
   }
 
+  override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
+    if let url = try? FileManager.default.url(for: .documentDirectory,
+                                                 in: .userDomainMask,
+                                                 appropriateFor: nil,
+                                                 create: true).appendingPathComponent("Untitled.json") {
+      if let jsonData = try? Data(contentsOf: url) {
+        emojiArt = EmojiArtModel(json: jsonData)
+      }
+    }
+  }
 
   // Change the scroll view size to the content size if user scrolls
   func scrollViewDidZoom(_ scrollView: UIScrollView) {
