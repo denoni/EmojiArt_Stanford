@@ -97,7 +97,7 @@ extension EmojiArtView {
     /// user to re-arrange them as they wish.
     ///
     private func sendToFront(_ view: UIView) {
-        if let indexOfSubview = subviews.index(of: view) {
+      if let indexOfSubview = subviews.firstIndex(of: view) {
             exchangeSubview(at: subviews.count-1, withSubviewAt: indexOfSubview)
         }
     }
