@@ -7,7 +7,7 @@
 
 import UIKit
 
-class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScrollViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource {
+class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScrollViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDragDelegate {
 
   var emojiArtView = EmojiArtView()
 
@@ -32,6 +32,7 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
     didSet {
       emojiCollectionView.dataSource = self
       emojiCollectionView.delegate = self
+      emojiCollectionView.dragDelegate = self
     }
   }
 
@@ -89,8 +90,6 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
     return emojis.count
   }
 
-
-
   func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EmojiCell", for: indexPath)
     if let emojiCell = cell as? EmojiCollectionViewCell {
@@ -99,6 +98,20 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
       emojiCell.label.attributedText = text
     }
     return cell
+  }
+
+  func collectionView(_ collectionView: UICollectionView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
+    return dragItems(at: indexPath)
+  }
+
+  private func dragItems(at indexPath: IndexPath) -> [UIDragItem] {
+    if let attributedString = (emojiCollectionView.cellForItem(at: indexPath) as? EmojiCollectionViewCell)?.label.attributedText {
+      let dragItem = UIDragItem(itemProvider: NSItemProvider(object: attributedString))
+      dragItem.localObject = attributedString
+      return [dragItem]
+    } else {
+      return []
+    }
   }
 
   var emojiArtBackgroundImage: UIImage? {
