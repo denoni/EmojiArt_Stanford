@@ -118,17 +118,24 @@
                                             </collectionViewCell>
                                         </cells>
                                     </collectionView>
-                                    <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="CAR-Sc-e8f">
-                                        <rect key="frame" x="8" y="231" width="860" height="638"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="CAR-Sc-e8f">
+                                        <rect key="frame" x="8" y="88" width="1164" height="630"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="630" id="KCc-7b-edY"/>
+                                            <constraint firstAttribute="width" constant="1164" id="iiV-V0-SIb"/>
+                                        </constraints>
                                         <viewLayoutGuide key="contentLayoutGuide" id="pdQ-b2-rZP"/>
                                         <viewLayoutGuide key="frameLayoutGuide" id="Nro-iF-V9w"/>
                                     </scrollView>
                                 </subviews>
                                 <color key="backgroundColor" systemColor="opaqueSeparatorColor"/>
                                 <constraints>
+                                    <constraint firstItem="CAR-Sc-e8f" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="ISg-uh-9eT" secondAttribute="leading" id="ANh-24-haa"/>
                                     <constraint firstItem="Ae5-9j-X6D" firstAttribute="top" secondItem="ISg-uh-9eT" secondAttribute="top" id="Ebx-5M-ypv"/>
+                                    <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="CAR-Sc-e8f" secondAttribute="trailing" id="PxM-7A-jjN"/>
+                                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="CAR-Sc-e8f" secondAttribute="bottom" id="aQr-ll-kbD"/>
                                     <constraint firstAttribute="trailing" secondItem="Ae5-9j-X6D" secondAttribute="trailing" id="jte-u8-hBE"/>
+                                    <constraint firstItem="CAR-Sc-e8f" firstAttribute="top" relation="greaterThanOrEqual" secondItem="Ae5-9j-X6D" secondAttribute="bottom" id="n4r-3p-wyX"/>
                                     <constraint firstItem="Ae5-9j-X6D" firstAttribute="leading" secondItem="ISg-uh-9eT" secondAttribute="leading" id="q6e-Ch-XTq"/>
                                 </constraints>
                             </view>
@@ -154,6 +161,8 @@
                         <outlet property="dropZone" destination="ISg-uh-9eT" id="5V2-4f-9yV"/>
                         <outlet property="emojiCollectionView" destination="Ae5-9j-X6D" id="jrz-8J-X8g"/>
                         <outlet property="scrollView" destination="CAR-Sc-e8f" id="45p-ct-vSN"/>
+                        <outlet property="scrollViewHeight" destination="KCc-7b-edY" id="75n-L6-LZc"/>
+                        <outlet property="scrollViewWidth" destination="iiV-V0-SIb" id="Stw-PJ-LDK"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
