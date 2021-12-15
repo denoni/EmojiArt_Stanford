@@ -7,9 +7,9 @@
 
 import UIKit
 
-class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScrollViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDragDelegate {
+class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScrollViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDragDelegate, UICollectionViewDropDelegate {
 
-  var emojiArtView = EmojiArtView()
+    var emojiArtView = EmojiArtView()
 
   @IBOutlet weak var scrollViewHeight: NSLayoutConstraint!
   @IBOutlet weak var scrollViewWidth: NSLayoutConstraint!
@@ -33,6 +33,7 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
       emojiCollectionView.dataSource = self
       emojiCollectionView.delegate = self
       emojiCollectionView.dragDelegate = self
+      emojiCollectionView.dropDelegate = self
     }
   }
 
@@ -101,6 +102,13 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
   }
 
   func collectionView(_ collectionView: UICollectionView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
+    // Just to check check if the item is local(that means that the item being dropped
+    // was dragged from the emoji's CollectionView) when user drops it
+    session.localContext = collectionView
+    return dragItems(at: indexPath)
+  }
+
+  func collectionView(_ collectionView: UICollectionView, itemsForAddingTo session: UIDragSession, at indexPath: IndexPath, point: CGPoint) -> [UIDragItem] {
     return dragItems(at: indexPath)
   }
 
@@ -111,6 +119,34 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
       return [dragItem]
     } else {
       return []
+    }
+  }
+
+  func collectionView(_ collectionView: UICollectionView, canHandle session: UIDropSession) -> Bool {
+    return session.canLoadObjects(ofClass: NSAttributedString.self)
+  }
+
+  func collectionView(_ collectionView: UICollectionView, dropSessionDidUpdate session: UIDropSession, withDestinationIndexPath destinationIndexPath: IndexPath?) -> UICollectionViewDropProposal {
+    // Checks if the drop is local(that means that the item being dropped was dragged from the emoji's CollectionView)
+    let isSelf = ((session.localDragSession?.localContext as? UICollectionView) == collectionView)
+    return UICollectionViewDropProposal(operation: isSelf ? .move : .copy, intent: .insertAtDestinationIndexPath)
+  }
+
+  func collectionView(_ collectionView: UICollectionView, performDropWith coordinator: UICollectionViewDropCoordinator) {
+    let destinationIndexPath = coordinator.destinationIndexPath ?? IndexPath(item: 0, section: 0)
+    for item in coordinator.items {
+      // The drag-drop is local
+      if let sourceIndexPath = item.sourceIndexPath {
+        if let attributedString = item.dragItem.localObject as? NSAttributedString {
+          collectionView.performBatchUpdates {
+            emojis.remove(at: sourceIndexPath.item)
+            emojis.insert(attributedString.string, at: destinationIndexPath.item)
+            collectionView.deleteItems(at: [sourceIndexPath])
+            collectionView.insertItems(at: [destinationIndexPath])
+          }
+          coordinator.drop(item.dragItem, toItemAt: destinationIndexPath)
+        }
+      }
     }
   }
 
