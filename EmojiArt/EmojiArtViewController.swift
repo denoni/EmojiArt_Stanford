@@ -62,6 +62,8 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
       emojiCollectionView.delegate = self
       emojiCollectionView.dragDelegate = self
       emojiCollectionView.dropDelegate = self
+      // To enable dragging item from collection even on iPhone
+      emojiCollectionView.dragInteractionEnabled = true
     }
   }
 
@@ -79,18 +81,11 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
 
   @IBAction func close(_ sender: UIBarButtonItem) {
     save()
+    if document?.emojiArtModel != nil {
+      document?.thumbnail = emojiArtView.snapshot
+    }
     dismiss(animated: true) {
       self.document?.close()
-    }
-  }
-
-  override func viewDidLoad() {
-    super.viewDidLoad()
-    if let url = try? FileManager.default.url(for: .documentDirectory,
-                                                 in: .userDomainMask,
-                                                 appropriateFor: nil,
-                                                 create: true).appendingPathComponent("Untitled.json") {
-      document = EmojiArtDocument(fileURL: url)
     }
   }
 
@@ -117,6 +112,8 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
 
   var imageFetcher: ImageFetcher!
 
+  private var suppressBadURLWarnings = true
+
   // Makes sure the dropped item is an NSURL and UIImage
   func dropInteraction(_ interaction: UIDropInteraction, canHandle session: UIDropSession) -> Bool {
     return session.canLoadObjects(ofClass: NSURL.self) && session.canLoadObjects(ofClass: UIImage.self)
@@ -135,10 +132,20 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
         self.emojiArtBackgroundImage = (url, image)
       }
     }
+    
 
     session.loadObjects(ofClass: NSURL.self) { nsurls in
       if let url = nsurls.first as? URL {
-        self.imageFetcher.fetch(url)
+        DispatchQueue.global(qos: .userInitiated).async {
+          if let imageData = try? Data(contentsOf: url.imageURL), let image = UIImage(data: imageData) {
+            DispatchQueue.main.async {
+              self.emojiArtBackgroundImage = (url, image)
+              self.save()
+            }
+          } else {
+            self.presentBadURLWarning(for: url)
+          }
+        }
       }
     }
 
@@ -146,6 +153,23 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
       if let image = images.first as? UIImage {
         self.imageFetcher.backup = image
       }
+    }
+  }
+
+  private func presentBadURLWarning(for url: URL?) {
+    if !suppressBadURLWarnings {
+      let alert = UIAlertController(title: "Image transfer failed",
+                                    message: "Couldn't transfer the dropped image from its source.\n Keep showing this warning?",
+                                    preferredStyle: .alert)
+
+      alert.addAction(UIAlertAction(title: "Keep Warning",
+                                    style: .default))
+
+      alert.addAction(UIAlertAction(title: "Stop Warning",
+                                    style: .destructive,
+                                    handler: { action in self.suppressBadURLWarnings = true }
+                                   ))
+      present(alert, animated: true)
     }
   }
 
