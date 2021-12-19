@@ -21,6 +21,7 @@
 		C09CEFC82768FF2E007C0339 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C09CEFC62768FF2E007C0339 /* LaunchScreen.storyboard */; };
 		C09CEFD0276901ED007C0339 /* EmojiArtView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C09CEFCF276901ED007C0339 /* EmojiArtView.swift */; };
 		C0AF88A5276A0F06008C8FB9 /* TextFieldCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0AF88A4276A0F06008C8FB9 /* TextFieldCollectionViewCell.swift */; };
+		C0C752E1276FDDF10099A81C /* DocumentInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0C752E0276FDDF10099A81C /* DocumentInfoViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,6 +41,7 @@
 		C09CEFC92768FF2E007C0339 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C09CEFCF276901ED007C0339 /* EmojiArtView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiArtView.swift; sourceTree = "<group>"; };
 		C0AF88A4276A0F06008C8FB9 /* TextFieldCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldCollectionViewCell.swift; sourceTree = "<group>"; };
+		C0C752E0276FDDF10099A81C /* DocumentInfoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentInfoViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,6 +78,7 @@
 				C035344F276AA28C0030E545 /* SceneDelegate.swift */,
 				C09CEFBF2768FE44007C0339 /* EmojiArtViewController.swift */,
 				C09CEFCF276901ED007C0339 /* EmojiArtView.swift */,
+				C0C752E0276FDDF10099A81C /* DocumentInfoViewController.swift */,
 				C09AA0BC276995CB00188F42 /* EmojiArtView+Gestures.swift */,
 				C0353415276A6F700030E545 /* EmojiArtModel.swift */,
 				C0AF88A4276A0F06008C8FB9 /* TextFieldCollectionViewCell.swift */,
@@ -172,6 +175,7 @@
 				C0353450276AA28C0030E545 /* SceneDelegate.swift in Sources */,
 				C0353416276A6F700030E545 /* EmojiArtModel.swift in Sources */,
 				C09ADC01276908FE00A50898 /* Utilities.swift in Sources */,
+				C0C752E1276FDDF10099A81C /* DocumentInfoViewController.swift in Sources */,
 				C09CEFD0276901ED007C0339 /* EmojiArtView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

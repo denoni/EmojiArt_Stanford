@@ -87,7 +87,7 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
     if document?.emojiArtModel != nil {
       document?.thumbnail = emojiArtView.snapshot
     }
-    dismiss(animated: true) {
+    presentingViewController?.dismiss(animated: true) {
       self.document?.close()
     }
   }
@@ -106,6 +106,15 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
                                                                            using: { _ in
                                                                              self.documentChanged()
                                                                            })
+      }
+    }
+  }
+
+  override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    if segue.identifier == "ShowDocumentInfo" {
+      if let destination = segue.destination.contents as? DocumentInfoViewController {
+        document?.thumbnail = emojiArtView.snapshot
+        destination.document = document
       }
     }
   }
