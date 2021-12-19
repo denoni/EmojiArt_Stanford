@@ -12,7 +12,7 @@
         <!--Document Browser View Controller-->
         <scene sceneID="5jM-BV-Vce">
             <objects>
-                <viewController id="BP7-db-ymf" customClass="DocumentBrowserViewController" customModule="EmojiArtDocument" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BP7-db-ymf" customClass="DocumentBrowserViewController" customModule="EmojiArt" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Obd-Rr-O5D">
                         <rect key="frame" x="0.0" y="0.0" width="1180" height="820"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -169,11 +169,6 @@
                         <barButtonItem key="leftBarButtonItem" systemItem="done" id="iyZ-yJ-bPs">
                             <connections>
                                 <action selector="close:" destination="Gxy-XN-lVF" id="9L1-MY-rHo"/>
-                            </connections>
-                        </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" systemItem="save" id="Bji-jl-blT">
-                            <connections>
-                                <action selector="save:" destination="Gxy-XN-lVF" id="f5E-Xa-jzD"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>

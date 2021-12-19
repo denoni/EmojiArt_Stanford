@@ -7,7 +7,7 @@
 
 import UIKit
 
-class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScrollViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDragDelegate, UICollectionViewDropDelegate {
+class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScrollViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDragDelegate, UICollectionViewDropDelegate, EmojiArtViewDelegate {
 
   var emojiArtModel: EmojiArtModel? {
     get {
@@ -34,7 +34,12 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
     }
   }
 
-  var emojiArtView = EmojiArtView()
+  lazy var emojiArtView: EmojiArtView = {
+    let eav = EmojiArtView()
+    eav.delegate = self
+    return eav
+  }()
+
   var document: EmojiArtDocument?
   private var addingEmoji = false
 
@@ -72,7 +77,7 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
     emojiCollectionView.reloadSections(IndexSet(integer: 0))
   }
 
-  @IBAction func save(_ sender: UIBarButtonItem? = nil) {
+  func documentChanged() {
     document?.emojiArtModel = emojiArtModel
     if document?.emojiArtModel != nil {
       document?.updateChangeCount(.done)
@@ -80,7 +85,7 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
   }
 
   @IBAction func close(_ sender: UIBarButtonItem) {
-    save()
+    documentChanged()
     if document?.emojiArtModel != nil {
       document?.thumbnail = emojiArtView.snapshot
     }
@@ -98,6 +103,10 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
       }
 
     }
+  }
+
+  func emojiArtViewDidChange(_ sender: EmojiArtView) {
+    documentChanged()
   }
 
   // Change the scroll view size to the content size if user scrolls
@@ -132,7 +141,6 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
         self.emojiArtBackgroundImage = (url, image)
       }
     }
-    
 
     session.loadObjects(ofClass: NSURL.self) { nsurls in
       if let url = nsurls.first as? URL {
@@ -140,7 +148,7 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
           if let imageData = try? Data(contentsOf: url.imageURL), let image = UIImage(data: imageData) {
             DispatchQueue.main.async {
               self.emojiArtBackgroundImage = (url, image)
-              self.save()
+              self.documentChanged()
             }
           } else {
             self.presentBadURLWarning(for: url)
