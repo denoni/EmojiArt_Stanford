@@ -7,7 +7,7 @@
 
 import UIKit
 
-class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScrollViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDragDelegate, UICollectionViewDropDelegate, EmojiArtViewDelegate {
+class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScrollViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDragDelegate, UICollectionViewDropDelegate {
 
   var emojiArtModel: EmojiArtModel? {
     get {
@@ -34,11 +34,7 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
     }
   }
 
-  lazy var emojiArtView: EmojiArtView = {
-    let eav = EmojiArtView()
-    eav.delegate = self
-    return eav
-  }()
+  lazy var emojiArtView = EmojiArtView()
 
   var document: EmojiArtDocument?
   private var addingEmoji = false
@@ -85,7 +81,9 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
   }
 
   @IBAction func close(_ sender: UIBarButtonItem) {
-    documentChanged()
+    if let observer = emojiArtViewObserver {
+      NotificationCenter.default.removeObserver(observer)
+    }
     if document?.emojiArtModel != nil {
       document?.thumbnail = emojiArtView.snapshot
     }
@@ -94,19 +92,22 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
     }
   }
 
+  private var emojiArtViewObserver: NSObjectProtocol?
+
   override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
     document?.open { success in
       if success {
         self.title = self.document?.localizedName
         self.emojiArtModel = self.document?.emojiArtModel
+        self.emojiArtViewObserver = NotificationCenter.default.addObserver(forName: .EmojiArtViewDidChange,
+                                                                           object: self.emojiArtView,
+                                                                           queue: .main,
+                                                                           using: { _ in
+                                                                             self.documentChanged()
+                                                                           })
       }
-
     }
-  }
-
-  func emojiArtViewDidChange(_ sender: EmojiArtView) {
-    documentChanged()
   }
 
   // Change the scroll view size to the content size if user scrolls
