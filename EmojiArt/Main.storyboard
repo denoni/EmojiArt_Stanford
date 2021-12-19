@@ -286,6 +286,7 @@
                     <connections>
                         <outlet property="createdLabel" destination="f09-Ux-dzt" id="ZM1-9a-LjR"/>
                         <outlet property="sizeLabel" destination="crN-Px-SYW" id="vmD-GT-A4t"/>
+                        <outlet property="thumbnailAspectRatio" destination="0PM-IY-w7j" id="WOz-YJ-zRV"/>
                         <outlet property="thumbnailImageView" destination="oIo-2r-FRA" id="ZTj-ck-DVh"/>
                     </connections>
                 </viewController>
