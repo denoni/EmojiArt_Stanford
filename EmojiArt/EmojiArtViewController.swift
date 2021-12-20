@@ -12,25 +12,42 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
 
   var emojiArtModel: EmojiArtModel? {
     get {
-      if let url = emojiArtBackgroundImage.url {
+      if let imageSource = emojiArtBackgroundImage {
         let emojis = emojiArtView.subviews.compactMap { $0 as? UILabel }.compactMap { EmojiArtModel.EmojiInfo(label: $0) }
-        return EmojiArtModel(url: url, emojis: emojis)
+        switch imageSource {
+        case .remote(let url, _): return EmojiArtModel(url: url, emojis: emojis)
+        case .local(let imageData, _): return EmojiArtModel(imageData: imageData, emojis: emojis)
+        }
       }
       return nil
     }
     set {
-      emojiArtBackgroundImage = (nil, nil)
+      emojiArtBackgroundImage = nil
       emojiArtView.subviews.compactMap { $0 as? UILabel }.forEach { $0.removeFromSuperview() }
+      let imageData = newValue?.imageData
+      let image = (imageData != nil) ? UIImage(data: imageData!) : nil
       if let url = newValue?.url {
-        imageFetcher = ImageFetcher(fetch: url, handler: { (url, image) in
+        imageFetcher = ImageFetcher() { (url, image) in
           DispatchQueue.main.async {
-            self.emojiArtBackgroundImage = (url, image)
+            if image == self.imageFetcher.backup {
+              self.emojiArtBackgroundImage = .local(imageData!, image)
+            } else {
+              self.emojiArtBackgroundImage = .remote(url, image)
+            }
             newValue?.emojis.forEach {
               let attributedText = $0.text.attributedString(withTextStyle: .body, ofSize: CGFloat($0.size))
               self.emojiArtView.addLabel(with: attributedText, centeredAt: CGPoint(x: $0.x, y: $0.y))
             }
           }
-        })
+        }
+        imageFetcher.backup = image
+        imageFetcher.fetch(url)
+      } else if image != nil {
+        emojiArtBackgroundImage = .local(imageData!, image!)
+        newValue?.emojis.forEach {
+          let attributedText = $0.text.attributedString(withTextStyle: .body, ofSize: CGFloat($0.size))
+          self.emojiArtView.addLabel(with: attributedText, centeredAt: CGPoint(x: $0.x, y: $0.y))
+        }
       }
     }
   }
@@ -92,7 +109,7 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
 
   @IBOutlet weak var cameraButton: UIBarButtonItem! {
     didSet {
-      cameraButton.isSelected = UIImagePickerController.isSourceTypeAvailable(.camera)
+      cameraButton.isEnabled = UIImagePickerController.isSourceTypeAvailable(.camera)
     }
   }
 
@@ -122,9 +139,13 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
   func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
     if let image = ((info[UIImagePickerController.InfoKey.editedImage]
                      ?? info[UIImagePickerController.InfoKey.originalImage]) as? UIImage) {
-      let url = image.storeLocallyAsJPEG(named: String(Date.timeIntervalSinceReferenceDate))
-      emojiArtBackgroundImage = (url, image)
-      documentChanged()
+      if let imageData = image.jpegData(compressionQuality: 1.0) {
+        emojiArtBackgroundImage = .local(imageData, image)
+        documentChanged()
+      } else {
+        // TODO: Alert the user that the photo that he took from camera had some problem
+      }
+
     }
     picker.presentingViewController?.dismiss(animated:true)
   }
@@ -195,22 +216,24 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
 
     imageFetcher = ImageFetcher() { (url, image) in
       DispatchQueue.main.async {
-        self.emojiArtBackgroundImage = (url, image)
+        if image == self.imageFetcher.backup {
+          if let imageData = image.jpegData(compressionQuality: 1.0) {
+            self.emojiArtBackgroundImage = .local(imageData, image)
+            self.documentChanged()
+          } else {
+            self.presentBadURLWarning(for: url)
+          }
+
+        } else {
+          self.emojiArtBackgroundImage = .remote(url, image)
+          self.documentChanged()
+        }
       }
     }
 
     session.loadObjects(ofClass: NSURL.self) { nsurls in
       if let url = nsurls.first as? URL {
-        DispatchQueue.global(qos: .userInitiated).async {
-          if let imageData = try? Data(contentsOf: url.imageURL), let image = UIImage(data: imageData) {
-            DispatchQueue.main.async {
-              self.emojiArtBackgroundImage = (url, image)
-              self.documentChanged()
-            }
-          } else {
-            self.presentBadURLWarning(for: url)
-          }
-        }
+        self.imageFetcher.fetch(url)
       }
     }
 
@@ -366,17 +389,23 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
     }
   }
 
-  private var emojiArtBackgroundImageURL: URL?
+  enum ImageSource {
+    case remote(URL, UIImage)
+    case local(Data, UIImage)
 
-  var emojiArtBackgroundImage: (url: URL?, image: UIImage?) {
-    get {
-      return (emojiArtBackgroundImageURL, emojiArtView.backgroundImage)
+    var image: UIImage {
+      switch self {
+      case .remote(_, let image): return image
+      case .local(_, let image): return image
+      }
     }
-    set {
-      emojiArtBackgroundImageURL = newValue.url
+  }
+
+  var emojiArtBackgroundImage: ImageSource? {
+    didSet {
       scrollView?.zoomScale = 1
-      emojiArtView.backgroundImage = newValue.image
-      let size = newValue.image?.size ?? CGSize.zero
+      emojiArtView.backgroundImage = emojiArtBackgroundImage?.image
+      let size = emojiArtBackgroundImage?.image.size ?? CGSize.zero
       emojiArtView.frame = CGRect(origin: CGPoint.zero, size: size)
       scrollView?.contentSize = size
 
