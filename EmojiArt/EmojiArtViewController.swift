@@ -7,7 +7,7 @@
 
 import UIKit
 
-class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScrollViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDragDelegate, UICollectionViewDropDelegate {
+class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScrollViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDragDelegate, UICollectionViewDropDelegate, UIPopoverPresentationControllerDelegate {
 
   var emojiArtModel: EmojiArtModel? {
     get {
@@ -115,8 +115,16 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
       if let destination = segue.destination.contents as? DocumentInfoViewController {
         document?.thumbnail = emojiArtView.snapshot
         destination.document = document
+        if let popoverPresentationController = destination.popoverPresentationController {
+          popoverPresentationController.delegate = self
+        }
       }
     }
+  }
+
+  func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle {
+    // .none adaptation (that means: "don't adapt for compact screens")
+    return .none
   }
 
   // Change the scroll view size to the content size if user scrolls
