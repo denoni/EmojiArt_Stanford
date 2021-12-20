@@ -172,11 +172,20 @@
                                 <action selector="close:" destination="Gxy-XN-lVF" id="9L1-MY-rHo"/>
                             </connections>
                         </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" title="Inspect" id="sMR-mf-QW4">
-                            <connections>
-                                <segue destination="mxp-uu-Lky" kind="presentation" identifier="ShowDocumentInfo" modalPresentationStyle="formSheet" id="5Jh-3Q-2Om"/>
-                            </connections>
-                        </barButtonItem>
+                        <rightBarButtonItems>
+                            <barButtonItem title="Pop" id="Els-KU-Q73">
+                                <connections>
+                                    <segue destination="mxp-uu-Lky" kind="popoverPresentation" identifier="ShowDocumentInfo" popoverAnchorBarButtonItem="Els-KU-Q73" id="MQN-of-Was">
+                                        <popoverArrowDirection key="popoverArrowDirection" up="YES" down="YES" left="YES" right="YES"/>
+                                    </segue>
+                                </connections>
+                            </barButtonItem>
+                            <barButtonItem title="Inspect" id="sMR-mf-QW4">
+                                <connections>
+                                    <segue destination="mxp-uu-Lky" kind="presentation" identifier="ShowDocumentInfo" modalPresentationStyle="formSheet" id="5Jh-3Q-2Om"/>
+                                </connections>
+                            </barButtonItem>
+                        </rightBarButtonItems>
                     </navigationItem>
                     <connections>
                         <outlet property="dropZone" destination="Lip-1i-omf" id="6SB-Rc-qaS"/>
@@ -213,11 +222,11 @@
             <objects>
                 <viewController id="mxp-uu-Lky" customClass="DocumentInfoViewController" customModule="EmojiArt" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="1Aq-Lz-oG9">
-                        <rect key="frame" x="0.0" y="0.0" width="540" height="620"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="680"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="PXL-J0-zr3">
-                                <rect key="frame" x="97" y="165.5" width="346" height="289"/>
+                                <rect key="frame" x="14.5" y="202" width="346" height="289"/>
                                 <subviews>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="oIo-2r-FRA">
                                         <rect key="frame" x="0.0" y="0.0" width="346" height="193"/>
@@ -288,6 +297,7 @@
                         <outlet property="sizeLabel" destination="crN-Px-SYW" id="vmD-GT-A4t"/>
                         <outlet property="thumbnailAspectRatio" destination="0PM-IY-w7j" id="WOz-YJ-zRV"/>
                         <outlet property="thumbnailImageView" destination="oIo-2r-FRA" id="ZTj-ck-DVh"/>
+                        <outlet property="topLevelView" destination="PXL-J0-zr3" id="gDp-Nw-PrW"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Rpx-mp-Xi2" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -295,6 +305,9 @@
             <point key="canvasLocation" x="1819.8305084745764" y="-289.02439024390242"/>
         </scene>
     </scenes>
+    <inferredMetricsTieBreakers>
+        <segue reference="MQN-of-Was"/>
+    </inferredMetricsTieBreakers>
     <resources>
         <systemColor name="opaqueSeparatorColor">
             <color red="0.77647058823529413" green="0.77647058823529413" blue="0.78431372549019607" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
