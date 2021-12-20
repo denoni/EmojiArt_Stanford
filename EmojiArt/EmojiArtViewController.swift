@@ -8,54 +8,9 @@
 import UIKit
 import UniformTypeIdentifiers
 
-class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScrollViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDragDelegate, UICollectionViewDropDelegate, UIPopoverPresentationControllerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class EmojiArtViewController: UIViewController {
 
-  var emojiArtModel: EmojiArtModel? {
-    get {
-      if let imageSource = emojiArtBackgroundImage {
-        let emojis = emojiArtView.subviews.compactMap { $0 as? UILabel }.compactMap { EmojiArtModel.EmojiInfo(label: $0) }
-        switch imageSource {
-        case .remote(let url, _): return EmojiArtModel(url: url, emojis: emojis)
-        case .local(let imageData, _): return EmojiArtModel(imageData: imageData, emojis: emojis)
-        }
-      }
-      return nil
-    }
-    set {
-      emojiArtBackgroundImage = nil
-      emojiArtView.subviews.compactMap { $0 as? UILabel }.forEach { $0.removeFromSuperview() }
-      let imageData = newValue?.imageData
-      let image = (imageData != nil) ? UIImage(data: imageData!) : nil
-      if let url = newValue?.url {
-        imageFetcher = ImageFetcher() { (url, image) in
-          DispatchQueue.main.async {
-            if image == self.imageFetcher.backup {
-              self.emojiArtBackgroundImage = .local(imageData!, image)
-            } else {
-              self.emojiArtBackgroundImage = .remote(url, image)
-            }
-            newValue?.emojis.forEach {
-              let attributedText = $0.text.attributedString(withTextStyle: .body, ofSize: CGFloat($0.size))
-              self.emojiArtView.addLabel(with: attributedText, centeredAt: CGPoint(x: $0.x, y: $0.y))
-            }
-          }
-        }
-        imageFetcher.backup = image
-        imageFetcher.fetch(url)
-      } else if image != nil {
-        emojiArtBackgroundImage = .local(imageData!, image!)
-        newValue?.emojis.forEach {
-          let attributedText = $0.text.attributedString(withTextStyle: .body, ofSize: CGFloat($0.size))
-          self.emojiArtView.addLabel(with: attributedText, centeredAt: CGPoint(x: $0.x, y: $0.y))
-        }
-      }
-    }
-  }
-
-  lazy var emojiArtView = EmojiArtView()
-
-  var document: EmojiArtDocument?
-  private var addingEmoji = false
+  // MARK: - IB
 
   @IBOutlet weak var scrollViewHeight: NSLayoutConstraint!
   @IBOutlet weak var scrollViewWidth: NSLayoutConstraint!
@@ -122,33 +77,83 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
     present(picker, animated: true)
   }
 
+  // MARK: - Variables
 
-  func documentChanged() {
-    document?.emojiArtModel = emojiArtModel
-    if document?.emojiArtModel != nil {
-      document?.updateChangeCount(.done)
-    }
-  }
+  var emojis = "🩸😎🥸🧶🥾🎩🧤👠👗🌼🌿🌶".map { String($0) }
+  lazy var emojiArtView = EmojiArtView()
 
+  var document: EmojiArtDocument?
   private var emojiArtViewObserver: NSObjectProtocol?
+  var imageFetcher: ImageFetcher!
 
-  func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-    picker.presentingViewController?.dismiss(animated:true)
+  private var addingEmoji = false
+  private var suppressBadURLWarnings = true
+
+  private var font: UIFont {
+    return UIFontMetrics(forTextStyle: .body).scaledFont(for: .preferredFont(forTextStyle: .body).withSize(50))
   }
 
-  func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-    if let image = ((info[UIImagePickerController.InfoKey.editedImage]
-                     ?? info[UIImagePickerController.InfoKey.originalImage]) as? UIImage) {
-      if let imageData = image.jpegData(compressionQuality: 1.0) {
-        emojiArtBackgroundImage = .local(imageData, image)
-        documentChanged()
-      } else {
-        // TODO: Alert the user that the photo that he took from camera had some problem
+  var emojiArtBackgroundImage: ImageSource? {
+    didSet {
+      scrollView?.zoomScale = 1
+      emojiArtView.backgroundImage = emojiArtBackgroundImage?.image
+      let size = emojiArtBackgroundImage?.image.size ?? CGSize.zero
+      emojiArtView.frame = CGRect(origin: CGPoint.zero, size: size)
+      scrollView?.contentSize = size
+
+      scrollViewHeight?.constant = size.height
+      scrollViewWidth?.constant = size.width
+
+      if let dropZone = self.dropZone, size.width > 0, size.height > 0 {
+        scrollView?.zoomScale = max(dropZone.bounds.size.width / size.width,
+                                    dropZone.bounds.size.height / size.height)
       }
-
     }
-    picker.presentingViewController?.dismiss(animated:true)
   }
+
+  var emojiArtModel: EmojiArtModel? {
+    get {
+      if let imageSource = emojiArtBackgroundImage {
+        let emojis = emojiArtView.subviews.compactMap { $0 as? UILabel }.compactMap { EmojiArtModel.EmojiInfo(label: $0) }
+        switch imageSource {
+        case .remote(let url, _): return EmojiArtModel(url: url, emojis: emojis)
+        case .local(let imageData, _): return EmojiArtModel(imageData: imageData, emojis: emojis)
+        }
+      }
+      return nil
+    }
+    set {
+      emojiArtBackgroundImage = nil
+      emojiArtView.subviews.compactMap { $0 as? UILabel }.forEach { $0.removeFromSuperview() }
+      let imageData = newValue?.imageData
+      let image = (imageData != nil) ? UIImage(data: imageData!) : nil
+      if let url = newValue?.url {
+        imageFetcher = ImageFetcher() { (url, image) in
+          DispatchQueue.main.async {
+            if image == self.imageFetcher.backup {
+              self.emojiArtBackgroundImage = .local(imageData!, image)
+            } else {
+              self.emojiArtBackgroundImage = .remote(url, image)
+            }
+            newValue?.emojis.forEach {
+              let attributedText = $0.text.attributedString(withTextStyle: .body, ofSize: CGFloat($0.size))
+              self.emojiArtView.addLabel(with: attributedText, centeredAt: CGPoint(x: $0.x, y: $0.y))
+            }
+          }
+        }
+        imageFetcher.backup = image
+        imageFetcher.fetch(url)
+      } else if image != nil {
+        emojiArtBackgroundImage = .local(imageData!, image!)
+        newValue?.emojis.forEach {
+          let attributedText = $0.text.attributedString(withTextStyle: .body, ofSize: CGFloat($0.size))
+          self.emojiArtView.addLabel(with: attributedText, centeredAt: CGPoint(x: $0.x, y: $0.y))
+        }
+      }
+    }
+  }
+
+  // MARK: - UIViewController Functions
 
   override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
@@ -182,25 +187,48 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
     }
   }
 
-  func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle {
-    // .none adaptation (that means: "don't adapt for compact screens")
-    return .none
+  // MARK: - Functions
+
+  func documentChanged() {
+    document?.emojiArtModel = emojiArtModel
+    if document?.emojiArtModel != nil {
+      document?.updateChangeCount(.done)
+    }
   }
 
-  // Change the scroll view size to the content size if user scrolls
-  func scrollViewDidZoom(_ scrollView: UIScrollView) {
-    scrollViewHeight.constant = scrollView.contentSize.height
-    scrollViewWidth.constant = scrollView.contentSize.width
+  enum ImageSource {
+    case remote(URL, UIImage)
+    case local(Data, UIImage)
+
+    var image: UIImage {
+      switch self {
+      case .remote(_, let image): return image
+      case .local(_, let image): return image
+      }
+    }
   }
 
-  func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-    return emojiArtView
+}
+
+
+extension EmojiArtModel.EmojiInfo {
+  init?(label: UILabel) {
+    if let attributedText = label.attributedText, let font = attributedText.font {
+      x = Int(label.center.x)
+      y = Int(label.center.y)
+      text = attributedText.string
+      size = Int(font.pointSize)
+    } else {
+      return nil
+    }
   }
+}
 
-  var imageFetcher: ImageFetcher!
 
-  private var suppressBadURLWarnings = true
+// MARK: - Protocol Conformance
 
+extension EmojiArtViewController: UIDropInteractionDelegate {
+  
   // Makes sure the dropped item is an NSURL and UIImage
   func dropInteraction(_ interaction: UIDropInteraction, canHandle session: UIDropSession) -> Bool {
     return session.canLoadObjects(ofClass: NSURL.self) && session.canLoadObjects(ofClass: UIImage.self)
@@ -260,15 +288,40 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
       present(alert, animated: true)
     }
   }
+}
 
-  var emojis = "🩸😎🥸🧶🥾🎩🧤👠👗🌼🌿🌶".map { String($0) }
-
-  private var font: UIFont {
-    return UIFontMetrics(forTextStyle: .body).scaledFont(for: .preferredFont(forTextStyle: .body).withSize(50))
+extension EmojiArtViewController: UIScrollViewDelegate {
+  // Change the scroll view size to the content size if user scrolls
+  func scrollViewDidZoom(_ scrollView: UIScrollView) {
+    scrollViewHeight.constant = scrollView.contentSize.height
+    scrollViewWidth.constant = scrollView.contentSize.width
   }
 
+  func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+    return emojiArtView
+  }
+}
+
+extension EmojiArtViewController: UICollectionViewDelegate {
+  func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+    if let inputCell = cell as? TextFieldCollectionViewCell {
+      inputCell.textField.becomeFirstResponder()
+    }
+  }
+}
+
+extension EmojiArtViewController: UICollectionViewDataSource {
   func numberOfSections(in collectionView: UICollectionView) -> Int {
     return 2
+  }
+
+  func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+    if addingEmoji && indexPath.section == 0 {
+      return CGSize(width: 300, height: 80)
+    }
+    else {
+      return CGSize(width: 80, height: 80)
+    }
   }
 
   func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -305,23 +358,9 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
       return cell
     }
   }
+}
 
-  func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-    if addingEmoji && indexPath.section == 0 {
-      return CGSize(width: 300, height: 80)
-    }
-    else {
-      return CGSize(width: 80, height: 80)
-    }
-  }
-
-  func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-    if let inputCell = cell as? TextFieldCollectionViewCell {
-      inputCell.textField.becomeFirstResponder()
-    }
-  }
-
-
+extension EmojiArtViewController: UICollectionViewDragDelegate {
   func collectionView(_ collectionView: UICollectionView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
     // Just to check check if the item is local(that means that the item being dropped
     // was dragged from the emoji's CollectionView) when user drops it
@@ -342,7 +381,9 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
       return []
     }
   }
+}
 
+extension EmojiArtViewController: UICollectionViewDropDelegate {
   func collectionView(_ collectionView: UICollectionView, canHandle session: UIDropSession) -> Bool {
     return session.canLoadObjects(ofClass: NSAttributedString.self)
   }
@@ -388,48 +429,33 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
       }
     }
   }
-
-  enum ImageSource {
-    case remote(URL, UIImage)
-    case local(Data, UIImage)
-
-    var image: UIImage {
-      switch self {
-      case .remote(_, let image): return image
-      case .local(_, let image): return image
-      }
-    }
-  }
-
-  var emojiArtBackgroundImage: ImageSource? {
-    didSet {
-      scrollView?.zoomScale = 1
-      emojiArtView.backgroundImage = emojiArtBackgroundImage?.image
-      let size = emojiArtBackgroundImage?.image.size ?? CGSize.zero
-      emojiArtView.frame = CGRect(origin: CGPoint.zero, size: size)
-      scrollView?.contentSize = size
-
-      scrollViewHeight?.constant = size.height
-      scrollViewWidth?.constant = size.width
-
-      if let dropZone = self.dropZone, size.width > 0, size.height > 0 {
-        scrollView?.zoomScale = max(dropZone.bounds.size.width / size.width,
-                                    dropZone.bounds.size.height / size.height)
-      }
-    }
-  }
-
 }
 
-extension EmojiArtModel.EmojiInfo {
-  init?(label: UILabel) {
-    if let attributedText = label.attributedText, let font = attributedText.font {
-      x = Int(label.center.x)
-      y = Int(label.center.y)
-      text = attributedText.string
-      size = Int(font.pointSize)
-    } else {
-      return nil
+extension EmojiArtViewController: UIImagePickerControllerDelegate {
+  func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+    picker.presentingViewController?.dismiss(animated:true)
+  }
+
+  func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+    if let image = ((info[UIImagePickerController.InfoKey.editedImage]
+                     ?? info[UIImagePickerController.InfoKey.originalImage]) as? UIImage) {
+      if let imageData = image.jpegData(compressionQuality: 1.0) {
+        emojiArtBackgroundImage = .local(imageData, image)
+        documentChanged()
+      } else {
+        // TODO: Alert the user that the photo that he took from camera had some problem
+      }
+
     }
+    picker.presentingViewController?.dismiss(animated:true)
   }
 }
+
+extension EmojiArtViewController: UIPopoverPresentationControllerDelegate {
+  func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle {
+    // .none adaptation (that means: "don't adapt for compact screens")
+    return .none
+  }
+}
+
+extension EmojiArtViewController: UINavigationControllerDelegate { }
