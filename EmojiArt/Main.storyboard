@@ -185,9 +185,15 @@
                                     <segue destination="mxp-uu-Lky" kind="presentation" identifier="ShowDocumentInfo" modalPresentationStyle="formSheet" id="5Jh-3Q-2Om"/>
                                 </connections>
                             </barButtonItem>
+                            <barButtonItem systemItem="camera" id="3Sg-dG-jeF">
+                                <connections>
+                                    <action selector="takeBackgroundPhoto:" destination="Gxy-XN-lVF" id="cQc-z4-4Pm"/>
+                                </connections>
+                            </barButtonItem>
                         </rightBarButtonItems>
                     </navigationItem>
                     <connections>
+                        <outlet property="cameraButton" destination="3Sg-dG-jeF" id="5u8-OT-UOn"/>
                         <outlet property="dropZone" destination="Lip-1i-omf" id="6SB-Rc-qaS"/>
                         <outlet property="emojiCollectionView" destination="Zno-KX-JuB" id="jkQ-tz-5Yb"/>
                         <outlet property="scrollView" destination="DSp-KS-jfu" id="CE3-gv-Wz2"/>

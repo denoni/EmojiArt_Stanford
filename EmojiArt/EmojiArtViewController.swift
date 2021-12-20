@@ -6,8 +6,9 @@
 //
 
 import UIKit
+import UniformTypeIdentifiers
 
-class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScrollViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDragDelegate, UICollectionViewDropDelegate, UIPopoverPresentationControllerDelegate {
+class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScrollViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDragDelegate, UICollectionViewDropDelegate, UIPopoverPresentationControllerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
   var emojiArtModel: EmojiArtModel? {
     get {
@@ -73,13 +74,6 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
     emojiCollectionView.reloadSections(IndexSet(integer: 0))
   }
 
-  func documentChanged() {
-    document?.emojiArtModel = emojiArtModel
-    if document?.emojiArtModel != nil {
-      document?.updateChangeCount(.done)
-    }
-  }
-
   @IBAction func close(_ sender: UIBarButtonItem? = nil) {
     if let observer = emojiArtViewObserver {
       NotificationCenter.default.removeObserver(observer)
@@ -94,23 +88,63 @@ class EmojiArtViewController: UIViewController, UIDropInteractionDelegate, UIScr
 
   @IBAction func close(bySegue: UIStoryboardSegue) {
     close()
+  }
 
+  @IBOutlet weak var cameraButton: UIBarButtonItem! {
+    didSet {
+      cameraButton.isSelected = UIImagePickerController.isSourceTypeAvailable(.camera)
+    }
+  }
+
+  @IBAction func takeBackgroundPhoto(_ sender: UIBarButtonItem) {
+    let picker = UIImagePickerController()
+    picker.sourceType = .camera
+    picker.mediaTypes = [UTType.image.identifier]
+    picker.allowsEditing = true
+    picker.delegate = self
+    present(picker, animated: true)
+  }
+
+
+  func documentChanged() {
+    document?.emojiArtModel = emojiArtModel
+    if document?.emojiArtModel != nil {
+      document?.updateChangeCount(.done)
+    }
   }
 
   private var emojiArtViewObserver: NSObjectProtocol?
 
+  func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+    picker.presentingViewController?.dismiss(animated:true)
+  }
+
+  func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+    if let image = ((info[UIImagePickerController.InfoKey.editedImage]
+                     ?? info[UIImagePickerController.InfoKey.originalImage]) as? UIImage) {
+      let url = image.storeLocallyAsJPEG(named: String(Date.timeIntervalSinceReferenceDate))
+      emojiArtBackgroundImage = (url, image)
+      documentChanged()
+    }
+    picker.presentingViewController?.dismiss(animated:true)
+  }
+
   override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
-    document?.open { success in
-      if success {
-        self.title = self.document?.localizedName
-        self.emojiArtModel = self.document?.emojiArtModel
-        self.emojiArtViewObserver = NotificationCenter.default.addObserver(forName: .EmojiArtViewDidChange,
-                                                                           object: self.emojiArtView,
-                                                                           queue: .main,
-                                                                           using: { _ in
-                                                                             self.documentChanged()
-                                                                           })
+    // We need to make this check otherwise when the user opens the camera to take a background image photo,
+    // once he took the photo and came back to the scroll view screen, his photo will be covered by a new document created below
+    if document?.documentState != .normal {
+      document?.open { success in
+        if success {
+          self.title = self.document?.localizedName
+          self.emojiArtModel = self.document?.emojiArtModel
+          self.emojiArtViewObserver = NotificationCenter.default.addObserver(forName: .EmojiArtViewDidChange,
+                                                                             object: self.emojiArtView,
+                                                                             queue: .main,
+                                                                             using: { _ in
+                                                                               self.documentChanged()
+                                                                             })
+        }
       }
     }
   }
